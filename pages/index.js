@@ -13,90 +13,111 @@ export default function Home() {
       // provided by ipgeolocation.abstractapi.com
       let flag, vpn;
 
-      // 10,000 req/month
-      source = `https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.NEXT_PUBLIC_ABSTRACTAPI_KEY}`;
-      response = await fetch(source);
-      data = await response.json();
-      user.push({
-        ip: data.ip_address,
-        city: data.city,
-        region: data.region,
-        postal_code: data.postal_code,
-        country: data.country,
-        lat: data.latitude,
-        lng: data.longitude,
-        org: data.connection ? (data.connection.organization_name || data.connection.autonomous_system_organization) : '-',
-        source
-      })
-      flag = data.flag ? data.flag.svg : null;
-      vpn = data.security ? data.security.is_vpn : null;
-
-      // 2 req/sec
-      source = 'https://ipapi.co/json/';
-      response = await fetch(source);
-      data = await response.json();
-      user.push({
-        ip: data.ip,
-        city: data.city,
-        region: data.region,
-        postal_code: data.postal,
-        country: data.country_name,
-        lat: data.latitude,
-        lng: data.longitude,
-        org: data.org,
-        source
-      })
-
-      // 50,000 req/month
-      source = 'https://ipinfo.io/json';
-      response = await fetch(source);
-      data = await response.json();
-      if (data.loc) {
-        const [lat, lng] = data.loc.split(',');
-        data.lat = lat;
-        data.lng = lng;
+      try {
+        // 10,000 req/month
+        source = `https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.NEXT_PUBLIC_ABSTRACTAPI_KEY}`;
+        response = await fetch(source);
+        data = await response.json();
+        user.push({
+          ip: data.ip_address,
+          city: data.city,
+          region: data.region,
+          postal_code: data.postal_code,
+          country: data.country,
+          lat: data.latitude,
+          lng: data.longitude,
+          org: data.connection ? (data.connection.organization_name || data.connection.autonomous_system_organization) : '-',
+          source
+        })
+        flag = data.flag ? data.flag.svg : null;
+        vpn = data.security ? data.security.is_vpn : null;
+      } catch (err) {
+        console.log(err);
       }
-      user.push({
-        ip: data.ip,
-        city: data.city,
-        region: data.region,
-        postal_code: data.postal,
-        country: data.country,
-        lat: data.lat,
-        lng: data.lng,
-        org: data.org,
-        source
-      })
 
-      source = 'https://api.db-ip.com/v2/free/self';
-      response = await fetch(source);
-      data = await response.json();
-      user.push({
-        ip: data.ipAddress,
-        city: data.city,
-        region: data.stateProv,
-        postal_code: null,
-        country: data.countryName,
-        lat: null,
-        lng: null,
-        org: null,
-        source
-      })
+      try {
+        // 2 req/sec
+        source = 'https://ipapi.co/json/';
+        response = await fetch(source);
+        data = await response.json();
+        user.push({
+          ip: data.ip,
+          city: data.city,
+          region: data.region,
+          postal_code: data.postal,
+          country: data.country_name,
+          lat: data.latitude,
+          lng: data.longitude,
+          org: data.org,
+          source
+        })
+      } catch (err) {
+        console.log(err)
+      }
 
-      source = 'https://json.geoiplookup.io/';
-      response = await fetch(source);
-      data = await response.json();
-      user.push({
-        ip: data.ip,
-        city: data.city,
-        region: data.region,
-        postal_code: null,
-        country: data.country_name,
-        lat: data.latitude,
-        lng: data.longitude,
-        org: data.org || data.asn_org,
-        source
-      })
+      try {
+        // 50,000 req/month
+        source = 'https://ipinfo.io/json';
+        response = await fetch(source);
+        data = await response.json();
+        if (data.loc) {
+          const [lat, lng] = data.loc.split(',');
+          data.lat = lat;
+          data.lng = lng;
+        }
+        user.push({
+          ip: data.ip,
+          city: data.city,
+          region: data.region,
+          postal_code: data.postal,
+          country: data.country,
+          lat: data.lat,
+          lng: data.lng,
+          org: data.org,
+          source
+        })
+      } catch (err) {
+        console.log(err)
+      }
+
+
+      try {
+        source = 'https://api.db-ip.com/v2/free/self';
+        response = await fetch(source);
+        data = await response.json();
+        user.push({
+          ip: data.ipAddress,
+          city: data.city,
+          region: data.stateProv,
+          postal_code: null,
+          country: data.countryName,
+          lat: null,
+          lng: null,
+          org: null,
+          source
+        })
+      } catch (err) {
+        console.log(err);
+      }
+
+      try {
+        source = 'https://json.geoiplookup.io/';
+        response = await fetch(source);
+        data = await response.json();
+        user.push({
+          ip: data.ip,
+          city: data.city,
+          region: data.region,
+          postal_code: null,
+          country: data.country_name,
+          lat: data.latitude,
+          lng: data.longitude,
+          org: data.org || data.asn_org,
+          source
+        })
+      } catch (err) {
+        console.log(err);
+      }
       setResult(user);
 
 
@@ -110,30 +131,41 @@ export default function Home() {
         data: user,
         flag, vpn
       }
-      response = await fetch(`${dbURL}/visitors`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(visitor)
-      })
-      data = await response.json();
-      // check for duplicate ip
-      if (response.status !== 200) {
-        const errMessage = data.message;
-        const errCode = errMessage.split(' ')[0];
-        if (errCode === 'E11000') {
-          setDuplicateIP(true);
+
+      try {
+        response = await fetch(`${dbURL}/visitors`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(visitor)
+        })
+        data = await response.json();
+        // check for duplicate ip
+        if (response.status !== 200) {
+          const errMessage = data.message;
+          const errCode = errMessage.split(' ')[0];
+          if (errCode === 'E11000') {
+            setDuplicateIP(true);
+          }
         }
+      } catch (err) {
+        console.log(err);
       }
+
 
       /************************************************************************** 
        display already stored information from database
        *************************************************************************/
-      response = await fetch(`${dbURL}/visitors`);
-      data = await response.json();
-      if (response.status === 200) {
-        setVisitors(data.visitors);
+
+      try {
+        response = await fetch(`${dbURL}/visitors`);
+        data = await response.json();
+        if (response.status === 200) {
+          setVisitors(data.visitors);
+        }
+      } catch (err) {
+        console.log(err);
       }
     }
     fetchData();
