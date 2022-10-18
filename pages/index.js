@@ -8,6 +8,7 @@ export default function Home() {
       let user = [];
       let source, response, data;
 
+      // 2 req/sec
       source = 'https://ipapi.co/json/';
       response = await fetch(source);
       data = await response.json();
@@ -22,20 +23,7 @@ export default function Home() {
         source
       })
 
-      source = 'http://www.geoplugin.net/json.gp';
-      response = await fetch(source);
-      data = await response.json();
-      user.push({
-        ip: data.geoplugin_request,
-        city: data.geoplugin_city,
-        region: data.geoplugin_region,
-        country: data.geoplugin_countryName,
-        lat: data.geoplugin_latitude,
-        lng: data.geoplugin_longitude,
-        org: null,
-        source
-      })
-
+      // 50,000 req/month
       source = 'https://ipinfo.io/json';
       response = await fetch(source);
       data = await response.json();
