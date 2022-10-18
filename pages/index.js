@@ -179,7 +179,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="2xl:container px-4 py-4 md:px-24">
+    <div className="2xl:container mx-auto px-4 py-4 md:px-24">
       <div className="mt-8 md:mb-16">
         <p className="text-xl md:text-3xl font-medium md:font-normal text-slate-700">
           This is where you will be known at last, for who you truly are.
