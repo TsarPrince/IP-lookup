@@ -252,6 +252,7 @@ export default function Home() {
           <table className="table-auto text-left w-full">
             <thead className="bg-slate-50 border-b">
               <tr>
+                <th className='py-4 pr-6 text-slate-600 font-semibold pl-4'>#</th>
                 <th className='py-4 pr-6 text-slate-600 font-semibold'></th>
                 <th className='py-4 pr-6 text-slate-600 font-semibold'>City</th>
                 <th className='py-4 pr-6 text-slate-600 font-semibold'>Region</th>
@@ -265,11 +266,18 @@ export default function Home() {
             </thead>
             <tbody>
               {
-                visitors.reverse().map(visitor => {
-                  // displays only data collected from ipgeolocation.abstractapi.com
-                  let user = visitor.data[0];
+                visitors.reverse().map((visitor, index) => {
+                  let user;
+                  if (visitor.data[0].city) {
+                    user = visitor.data[0];
+                  } else if (visitor.data[1].city) {
+                    user = visitor.data[1];
+                  } else {
+                    user = visitor.data[2];
+                  }
                   return (
                     <tr key={visitor._id} className="border-b">
+                      <td className="py-2 px-4 whitespace-nowrap">{index + 1}</td>
                       <td className="">
                         <div className="px-1 mx-4 w-8 select-none">
                           <img className="w-8" src={visitor.flag}></img>
