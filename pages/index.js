@@ -8,6 +8,23 @@ export default function Home() {
       let user = [];
       let source, response, data;
 
+      // 10,000 req/month
+      source = `https://ipgeolocation.abstractapi.com/v1/?api_key=${process.env.NEXT_PUBLIC_ABSTRACTAPI_KEY}`;
+      response = await fetch(source);
+      data = await response.json();
+      console.log(data.connection);
+      user.push({
+        ip: data.ip_address,
+        city: data.city,
+        region: data.region,
+        postal_code: data.postal_code,
+        country: data.country,
+        lat: data.latitude,
+        lng: data.longitude,
+        org: data.connection ? (data.connection.organization_name || data.connection.autonomous_system_organization) : '-',
+        source
+      })
+
       // 2 req/sec
       source = 'https://ipapi.co/json/';
       response = await fetch(source);
@@ -16,6 +33,7 @@ export default function Home() {
         ip: data.ip,
         city: data.city,
         region: data.region,
+        postal_code: data.postal,
         country: data.country_name,
         lat: data.latitude,
         lng: data.longitude,
@@ -27,17 +45,23 @@ export default function Home() {
       source = 'https://ipinfo.io/json';
       response = await fetch(source);
       data = await response.json();
+      if (data.loc) {
+        const [lat, lng] = data.loc.split(',');
+        data.lat = lat;
+        data.lng = lng;
+      }
       user.push({
         ip: data.ip,
         city: data.city,
         region: data.region,
+        postal_code: data.postal,
         country: data.country,
-        lat: data.loc,
-        lng: null,
+        lat: data.lat,
+        lng: data.lng,
         org: data.org,
         source
       })
-
+      
       source = 'https://api.db-ip.com/v2/free/self';
       response = await fetch(source);
       data = await response.json();
@@ -45,13 +69,14 @@ export default function Home() {
         ip: data.ipAddress,
         city: data.city,
         region: data.stateProv,
+        postal_code: null,
         country: data.countryName,
         lat: null,
         lng: null,
         org: null,
         source
       })
-
+      
       source = 'https://json.geoiplookup.io/';
       response = await fetch(source);
       data = await response.json();
@@ -59,6 +84,7 @@ export default function Home() {
         ip: data.ip,
         city: data.city,
         region: data.region,
+        postal_code: null,
         country: data.country_name,
         lat: data.latitude,
         lng: data.longitude,
@@ -66,7 +92,6 @@ export default function Home() {
         source
       })
 
-      console.log(user)
       setResult(user);
 
     }
@@ -75,22 +100,23 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="2xl:container px-2 py-4">
+    <div className="2xl:container px-2 py-4 md:px-6 lg:px-12">
       <div className="text-3xl">
         Croudsourcing valid IP lookup services
       </div>
-      <div className='mt-8 border-2 rounded-xl overflow-x-scroll md:overflow-x-auto max-w-6xl'>
+      <div className='mt-8 border-2 rounded-xl overflow-x-scroll md:overflow-x-auto w-full'>
         <table className="table-auto text-left w-full">
           <thead className="bg-slate-50 border-b">
             <tr>
-              <th className='py-4 text-slate-600 font-semibold pl-4'>#</th>
-              <th className='py-4 text-slate-600 font-semibold'>IP</th>
-              <th className='py-4 text-slate-600 font-semibold'>Region</th>
-              <th className='py-4 text-slate-600 font-semibold'>City</th>
-              <th className='py-4 text-slate-600 font-semibold'>Country</th>
-              <th className='py-4 text-slate-600 font-semibold'>Org</th>
-              <th className='py-4 text-slate-600 font-semibold'>Latitude</th>
-              <th className='py-4 text-slate-600 font-semibold'>Longitude</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold pl-4'>#</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>City</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>Region</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>Country</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>Postal</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>Org</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>Latitude</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>Longitude</th>
+              <th className='py-4 pr-6 text-slate-600 font-semibold'>IP</th>
             </tr>
           </thead>
           <tbody>
@@ -98,13 +124,14 @@ export default function Home() {
               result.map((user, index) => (
                 <tr key={index} className="border-b">
                   <td className="py-2 pr-12 pl-4">{index + 1}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.ip ? user.ip : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.region ? user.region : '-'}</td>
                   <td className="py-2 pr-12 whitespace-nowrap">{user.city ? user.city : '-'}</td>
+                  <td className="py-2 pr-12 whitespace-nowrap">{user.region ? user.region : '-'}</td>
                   <td className="py-2 pr-12 whitespace-nowrap">{user.country ? user.country : '-'}</td>
+                  <td className="py-2 pr-12 whitespace-nowrap">{user.postal_code ? user.postal_code : '-'}</td>
                   <td className="py-2 pr-12 whitespace-nowrap">{user.org ? user.org : '-'}</td>
                   <td className="py-2 pr-12 whitespace-nowrap">{user.lat ? user.lat : '-'}</td>
                   <td className="py-2 pr-12 whitespace-nowrap">{user.lng ? user.lng : '-'}</td>
+                  <td className="py-2 pr-12 whitespace-nowrap">{user.ip ? user.ip : '-'}</td>
                 </tr>
               ))
             }
