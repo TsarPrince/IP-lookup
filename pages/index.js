@@ -4,6 +4,7 @@ export default function Home() {
   const [result, setResult] = useState([]);
   const [visitors, setVisitors] = useState([]);
   const [duplicateIP, setDuplicateIP] = useState(false);
+  const [newUser, setNewUser] = useState(false);
 
   useEffect(() => {
 
@@ -51,54 +52,57 @@ export default function Home() {
           org: data.org,
           source
         })
+        setResult(user);
       } catch (err) {
         console.log(err)
       }
 
-      try {
-        // 50,000 req/month
-        source = 'https://ipinfo.io/json';
-        response = await fetch(source);
-        data = await response.json();
-        if (data.loc) {
-          const [lat, lng] = data.loc.split(',');
-          data.lat = lat;
-          data.lng = lng;
-        }
-        user.push({
-          ip: data.ip,
-          city: data.city,
-          region: data.region,
-          postal_code: data.postal,
-          country: data.country,
-          lat: data.lat,
-          lng: data.lng,
-          org: data.org,
-          source
-        })
-      } catch (err) {
-        console.log(err)
-      }
+      // try {
+      //   // 50,000 req/month
+      //   source = 'https://ipinfo.io/json';
+      //   response = await fetch(source);
+      //   data = await response.json();
+      //   if (data.loc) {
+      //     const [lat, lng] = data.loc.split(',');
+      //     data.lat = lat;
+      //     data.lng = lng;
+      //   }
+      //   user.push({
+      //     ip: data.ip,
+      //     city: data.city,
+      //     region: data.region,
+      //     postal_code: data.postal,
+      //     country: data.country,
+      //     lat: data.lat,
+      //     lng: data.lng,
+      //     org: data.org,
+      //     source
+      //   })
+      //   setResult(user);
+      // } catch (err) {
+      //   console.log(err)
+      // }
 
 
-      try {
-        source = 'https://api.db-ip.com/v2/free/self';
-        response = await fetch(source);
-        data = await response.json();
-        user.push({
-          ip: data.ipAddress,
-          city: data.city,
-          region: data.stateProv,
-          postal_code: null,
-          country: data.countryName,
-          lat: null,
-          lng: null,
-          org: null,
-          source
-        })
-      } catch (err) {
-        console.log(err);
-      }
+      // try {
+      //   source = 'https://api.db-ip.com/v2/free/self';
+      //   response = await fetch(source);
+      //   data = await response.json();
+      //   user.push({
+      //     ip: data.ipAddress,
+      //     city: data.city,
+      //     region: data.stateProv,
+      //     postal_code: null,
+      //     country: data.countryName,
+      //     lat: null,
+      //     lng: null,
+      //     org: null,
+      //     source
+      //   })
+      //   setResult(user);
+      // } catch (err) {
+      //   console.log(err);
+      // }
 
       try {
         source = 'https://json.geoiplookup.io/';
@@ -115,10 +119,10 @@ export default function Home() {
           org: data.org || data.asn_org,
           source
         })
+        setResult(user);
       } catch (err) {
         console.log(err);
       }
-      setResult(user);
 
 
 
@@ -147,6 +151,8 @@ export default function Home() {
           const errCode = errMessage.split(' ')[0];
           if (errCode === 'E11000') {
             setDuplicateIP(true);
+          } else {
+            setNewUser(true);
           }
         }
       } catch (err) {
@@ -173,85 +179,36 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="2xl:container px-2 py-4 md:px-6 lg:px-12">
-      <div className="text-3xl">
-        Croudsourcing valid IP lookup services
+    <div className="2xl:container px-4 py-4 md:px-24">
+      <div className="mt-8 md:mb-16">
+        <p className="text-xl md:text-3xl font-medium md:font-normal text-slate-700">
+          This is where you will be known at last, for who you truly are.
+        </p>
       </div>
 
-      {/* collected data */}
-      <div className='mt-8 border-2 rounded-xl overflow-x-scroll md:overflow-x-auto w-full'>
-        <table className="table-auto text-left w-full">
-          <thead className="bg-slate-50 border-b">
-            <tr>
-              <th className='py-4 pr-6 text-slate-600 font-semibold pl-4'>#</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>City</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Region</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Country</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Postal</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Org</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Latitude</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Longitude</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>IP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              result.map((user, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-2 pr-12 pl-4">{index + 1}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.city ? user.city : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.region ? user.region : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.country ? user.country : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.postal_code ? user.postal_code : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.org ? user.org : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.lat ? user.lat : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.lng ? user.lng : '-'}</td>
-                  <td className="py-2 pr-12 whitespace-nowrap">{user.ip ? user.ip : '-'}</td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-
-      {
-        duplicateIP
-          ? <div className="mt-8">
-            <p className="border border-pink-500 text-pink-500 rounded-xl px-4 py-2 text-lg font-medium hover:bg-pink-500 hover:text-white hover:cursor-pointer transition-all">
-              We already have your data. That means you are of no use to us now, hence we <span className="italic">harshly</span> request you to leave. Please do NOT visit again.
-            </p>
-          </div>
-          : <div></div>
-      }
-
-      {/* previous visitors data */}
-      <div className='mt-8 border-2 rounded-xl overflow-x-scroll md:overflow-x-auto w-full'>
-        <table className="table-auto text-left w-full">
-          <thead className="bg-slate-50 border-b">
-            <tr>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'></th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>City</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Region</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Country</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Postal</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Org</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Latitude</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>Longitude</th>
-              <th className='py-4 pr-6 text-slate-600 font-semibold'>IP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              visitors.map(visitor => {
-                // displays only data collected from ipgeolocation.abstractapi.com
-                let user = visitor.data[0];
-                return (
-                  <tr key={visitor._id} className="border-b">
-                    <td className="">
-                      <div className="px-4 select-none">
-                        <img className="w-8" src={visitor.flag}></img>
-                      </div>
-                    </td>
+      <div className="mt-8 space-y-2">
+        <p className="text-slate-500">What we think of your IP Address. City/Province might not be correct.</p>
+        {/* collected data */}
+        <div className='border-2 rounded-xl overflow-x-scroll md:overflow-x-auto w-full'>
+          <table className="table-auto text-left w-full">
+            <thead className="bg-slate-50 border-b">
+              <tr>
+                <th className='py-4 pr-6 text-slate-600 font-semibold pl-4'>#</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>City</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Region</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Country</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Postal</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Org</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Latitude</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Longitude</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                result.map((user, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="py-2 pr-12 pl-4">{index + 1}</td>
                     <td className="py-2 pr-12 whitespace-nowrap">{user.city ? user.city : '-'}</td>
                     <td className="py-2 pr-12 whitespace-nowrap">{user.region ? user.region : '-'}</td>
                     <td className="py-2 pr-12 whitespace-nowrap">{user.country ? user.country : '-'}</td>
@@ -261,11 +218,78 @@ export default function Home() {
                     <td className="py-2 pr-12 whitespace-nowrap">{user.lng ? user.lng : '-'}</td>
                     <td className="py-2 pr-12 whitespace-nowrap">{user.ip ? user.ip : '-'}</td>
                   </tr>
-                )
-              })
-            }
-          </tbody>
-        </table>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {
+        newUser
+          ? <div className="mt-8">
+            <p className="border border-green-500 text-green-500 rounded-xl px-4 py-2 text-lg font-medium hover:bg-green-500 hover:text-white hover:cursor-pointer transition-all">
+              Thankyou for <span className="italic">willingly</span> submitting your information here.😺
+            </p>
+          </div>
+          : <div></div>
+      }
+      {
+        duplicateIP
+          ? <div className="mt-8">
+            <p className="border border-pink-500 text-pink-500 rounded-xl px-4 py-2 text-lg font-medium hover:bg-pink-500 hover:text-white hover:cursor-pointer transition-all">
+              We already have your data. That means you are of no use to us now, hence we <span className="italic">harshly</span> request you to leave. Please do NOT visit again 😺
+            </p>
+          </div>
+          : <div></div>
+      }
+
+      <div className="mt-8 space-y-2">
+        <p className="text-slate-500">You are now a part of this table</p>
+
+        {/* previous visitors data */}
+        <div className='border-2 rounded-xl overflow-x-scroll md:overflow-x-auto w-full'>
+          <table className="table-auto text-left w-full">
+            <thead className="bg-slate-50 border-b">
+              <tr>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'></th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>City</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Region</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Country</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Postal</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Org</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Latitude</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>Longitude</th>
+                <th className='py-4 pr-6 text-slate-600 font-semibold'>IP</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                visitors.reverse().map(visitor => {
+                  // displays only data collected from ipgeolocation.abstractapi.com
+                  let user = visitor.data[0];
+                  return (
+                    <tr key={visitor._id} className="border-b">
+                      <td className="">
+                        <div className="px-1 mx-4 w-8 select-none">
+                          <img className="w-8" src={visitor.flag}></img>
+                        </div>
+                      </td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.city ? user.city : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.region ? user.region : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.country ? user.country : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.postal_code ? user.postal_code : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.org ? user.org : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.lat ? user.lat : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.lng ? user.lng : '-'}</td>
+                      <td className="py-2 pr-12 whitespace-nowrap">{user.ip ? user.ip : '-'}</td>
+                    </tr>
+                  )
+                })
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
 
 
