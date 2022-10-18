@@ -136,7 +136,7 @@ export default function Home() {
         setVisitors(data.visitors);
       }
     }
-    // fetchData();
+    fetchData();
 
   }, [])
 
